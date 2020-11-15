@@ -16,13 +16,14 @@ ores  = {
 population = []
 for key in ores:
     population.append(ores[key])
+print(population)
 
 
 
 
 # ores = ['Aether', 'Diamond', 'Platinum', 'Gold', 'Silver', 'Copper', 'Iron']
 class MineUser:
-    def __init__(self, user, ag, c, pt, ae, fe, au, cu, stone):
+    def __init__(self, user, ag, c, pt, ae, fe, au, cu, stone, level):
         self.user = user
         self.aether_amnt = ae
         self.aether_val = 1400
@@ -56,6 +57,7 @@ class MineUser:
         self.stone_val = 1
 
         self.credits = 0
+        self.level = level
 
     def mine1(self):
         # mine = random.random() * 100
@@ -186,6 +188,10 @@ class MineUser:
             self.credits += stone_gained * self.stone_val
 
     def mine5(self):
+        """
+        I MODIFIED THIS SO IT WILL WORK WITH THE ACTUAL DISCORD BOT! :D
+        :return:
+        """
         mine = random.random() * 100
         if mine < 5:
             silver_gain = 2
@@ -194,29 +200,43 @@ class MineUser:
         elif mine < 25:
             gain = random.random()
             if gain < 0.3:
-                self.copper_amnt += 2
+                coppergain = 2
+                self.copper_amnt += coppergain
                 self.credits += 2 * self.copper_val
+                return 'Copper', coppergain
             elif gain < 0.7:
-                self.copper_amnt += 3
+                coppergain = 3
+                self.copper_amnt += coppergain
                 self.credits += 3 * self.copper_val
+                return 'Copper', coppergain
             else:
+                coppergain = 4
                 self.copper_amnt += 4
                 self.credits += 4 * self.copper_val
+                return 'Copper', coppergain
         elif mine < 50:
             gain = random.random()
             if gain < 0.3:
-                self.iron_amnt += 2
+                irongain = 2
+                self.iron_amnt += irongain
                 self.credits += 2 * self.iron_val
+                return 'Iron', irongain
             elif gain < 0.7:
-                self.iron_amnt += 3
+                irongain = 3
+                self.iron_amnt += irongain
                 self.credits += 3 * self.iron_val
+                return 'Iron', irongain
             else:
-                self.iron_amnt += 4
+                irongain = 4
+                self.iron_amnt += irongain
                 self.credits += 4 * self.iron_val
+                return 'Iron', irongain
+
         else:
             stone_gained = random.randint(2, 4)
             self.stone_amnt += stone_gained
             self.credits += stone_gained * self.stone_val
+            return 'Stone', stone_gained
 
 
     def mine6(self):
@@ -368,6 +388,27 @@ class MineUser:
             self.stone_amnt += stone_gained
             self.credits += stone_gained * self.stone_val
 
+    def mine(self):
+        if self.level == 1:
+            self.mine1()
+        elif self.level == 2:
+            self.mine2()
+        elif self.level == 3:
+            self.mine3()
+        elif self.level == 4:
+            self.mine4()
+        elif self.level == 5:
+            ore, gain  = self.mine5()
+            return ore, gain
+        elif self.level == 6:
+            self.mine6()
+        elif self.level == 7:
+            self.mine7()
+        elif self.level == 8:
+            self.mine8()
+        elif self.level == 9:
+            self.mine9()
+
 def avg(lst):
     return sum(lst) / len(lst)
 
@@ -385,56 +426,56 @@ def minestats():
     print('Credits:', miner.credits, '\n')
 
 
-miner = MineUser('peepee', 0, 0, 0, 0, 0, 0, 0, 0)
+# miner = MineUser('peepee', 0, 0, 0, 0, 0, 0, 0, 0)
 
-for i in range(5):
-    mined = 0
-
-    while miner.credits < 5:
-        miner.mine1()
-        mined += 1
-    miner.credits = 0
-    # Lvl 2
-    while miner.credits < 150:
-        miner.mine2()
-        mined += 1
-    miner.credits = 0
-    # Lvl 3
-    while miner.credits < 350:
-        miner.mine3()
-        mined += 1
-    # Lvl 4
-    miner.credits = 0
-    while miner.credits < 500:
-        miner.mine4()
-        mined += 1
-    # Lvl 5
-    miner.credits = 0
-    while miner.credits < 1500:
-        miner.mine5()
-        mined += 1
-    # Lvl 6
-    miner.credits = 0
-    while miner.credits < 2250:
-        miner.mine6()
-        mined += 1
-    # Lvl 7
-    miner.credits = 0
-    while miner.credits < 3000:
-        miner.mine7()
-        mined += 1
-    # Lvl 8
-    miner.credits = 0
-    while miner.credits < 4500:
-        miner.mine8()
-        mined += 1
-    # Lvl 9
-    miner.credits = 0
-    while miner.credits < 6500:
-        miner.mine9()
-        mined += 1
-
-    minestats()
+# for i in range(5):
+#     mined = 0
+#
+#     while miner.credits < 5:
+#         miner.mine1()
+#         mined += 1
+#     miner.credits = 0
+#     # Lvl 2
+#     while miner.credits < 150:
+#         miner.mine2()
+#         mined += 1
+#     miner.credits = 0
+#     # Lvl 3
+#     while miner.credits < 350:
+#         miner.mine3()
+#         mined += 1
+#     # Lvl 4
+#     miner.credits = 0
+#     while miner.credits < 500:
+#         miner.mine4()
+#         mined += 1
+#     # Lvl 5
+#     miner.credits = 0
+#     while miner.credits < 1500:
+#         miner.mine5()
+#         mined += 1
+#     # Lvl 6
+#     miner.credits = 0
+#     while miner.credits < 2250:
+#         miner.mine6()
+#         mined += 1
+#     # Lvl 7
+#     miner.credits = 0
+#     while miner.credits < 3000:
+#         miner.mine7()
+#         mined += 1
+#     # Lvl 8
+#     miner.credits = 0
+#     while miner.credits < 4500:
+#         miner.mine8()
+#         mined += 1
+#     # Lvl 9
+#     miner.credits = 0
+#     while miner.credits < 6500:
+#         miner.mine9()
+#         mined += 1
+#
+#     minestats()
 # Mean/Median Machine for Credits of miner
 # minecreds = []
 # for i in range(100):
