@@ -9,6 +9,7 @@ from os import listdir
 from os.path import isfile, join
 from Database import Database
 import sqlite3
+from mine_sim import MineUser
 
 
 def main():
@@ -48,7 +49,8 @@ def main():
                 authoricon = authorname.avatar_url
                 embed = discord.Embed(title='Mining', description=description)
                 embed.set_author(name=authorname, icon_url=authoricon)
-                embed.set_image(url='https://i.imgur.com/hAaNOoP.png?1')
+                embed.set_image(url='https://github.com/Haxorgz/SuperCoolGame/blob/main/Images/goodrock.png?raw=true')
+                # https://github.com/Haxorgz/SuperCoolGame/blob/main/Images/goodrock.png?raw=true https://i.imgur.com/hAaNOoP.png?1
                 embed.set_footer(text='EpicGameBot')
                 mine = await ctx.send(embed=embed)
                 await mine.add_reaction('\N{pick}')
@@ -58,6 +60,18 @@ def main():
         @work.command(name='help')
         async def help(self, ctx):
             await ctx.send("To mine, type g!work mine.\n That's about it...")
+
+        # @commands.group(name='addcredits')
+        # async def addcredits(self, ctx):
+        #     if ctx.invoked_subcommand is None:
+        #         await ctx.send('Type g!addcredits *username* to add credits to a user.')
+            # discid = ctx.author
+            # db.c.execute('SELECT * FROM users;')
+            # users = db.c.fetchall()
+            # for user in users:
+            #     if str(discid) == user:
+            #         db.c.execute(UPDATE)
+
 
     bot.add_cog(Work(bot)) # Adds work class to bot
 
@@ -114,6 +128,7 @@ def main():
             if emoji == '\N{pick}':
                     try:
                         db.c.execute('INSERT INTO miners VALUES (?, ?)', (discid, 0)) # Puts user as miner
+                        db.c.execute('INSERT INTO ores VALUES(?, 0, 0, 0, 0, 0, 0, 0, 0)', (discid,)) # Puts user into ore table
                         await message.send("You're now a miner! :D")
                         db.c.execute('DELETE FROM starters WHERE discid == ?;', (discid, )) # Not starting anymore
                         await reaction.message.delete()
@@ -171,6 +186,8 @@ def main():
                 await message.send('That class is SHIT! Pick another one.')
         else:
             # Completely different reaction function
+            # Only for mining
+            # DOESN'T WORK PROPERLY SHOULD CHECK ALL MINERS IF MORE THAN 1
             db.c.execute('SELECT * FROM miners;')  # Gets miners
             miner = db.c.fetchall()
             if miner:
@@ -179,9 +196,29 @@ def main():
             else:
                 og_discid = None
                 print(og_discid)
-            message = reaction.message  # Original message of starting the game
+            ogmessage = reaction.message  # Original message of starting the game
             if discid == og_discid:
-                await message.delete()
+                await ogmessage.delete()
+                db.c.execute('SELECT * FROM ores WHERE discid = ?;', (og_discid,))
+                user = db.c.fetchall()
+                user = list(user[0])
+                user.append(5)
+                mine = MineUser(user[0], user[1], user[2], user[3], user[4], user[5], user[6], user[7], user[8], user[9])
+                ore, gain = mine.mine()
+                await message.send(f'You have mined {gain} {ore}! LOL XD ROFLMAO')
+                ore = ore.lower()
+                if ore == 'copper':
+                    total = mine.copper_amnt
+                elif ore == 'iron':
+                    total = mine.iron_amnt
+                elif ore == 'silver':
+                    total = mine.silver_amnt
+                elif ore == 'stone':
+                    total = mine.stone_amnt
+                db.c.execute("""UPDATE ores
+                                SET (%s) = ?
+                                WHERE discid = ?
+                              """% (ore), (total, og_discid))
 
 
     @bot.command(name='profile', help='Shows your profile.')
@@ -195,6 +232,35 @@ def main():
         embed.add_field(name='Credits', value=0, inline=True)
         embed.set_footer(text='EpicGameBot')
         await message.send(embed=embed)
+
+    @bot.command(name='ores', help='Shows all your ores')
+    async def ores(ctx):
+        authorname = ctx.author
+        authorid = authorname.id
+        description = str(authorname) + "'s  ores."
+        authoricon = authorname.avatar_url
+        db.c.execute('SELECT * FROM ores WHERE discid = ?', (authorid,))
+        ores = db.c.fetchall()
+        aether = ores[0][1]
+        diamond = ores[0][2]
+        platinum = ores[0][3]
+        gold = ores[0][4]
+        silver = ores[0][5]
+        copper = ores[0][6]
+        iron = ores[0][7]
+        stone = ores[0][8]
+        embed = discord.Embed(title='Miner ores', description=description)
+        embed.set_author(name=authorname, icon_url=authoricon)
+        embed.add_field(name="Aether", value=aether, inline=True)
+        embed.add_field(name="Diamond", value=diamond, inline=True)
+        embed.add_field(name="Platinum", value=platinum, inline=True)
+        embed.add_field(name="Gold", value=gold, inline=True)
+        embed.add_field(name="Silver", value=silver, inline=True)
+        embed.add_field(name="Copper", value=copper, inline=True)
+        embed.add_field(name="Iron", value=iron, inline=True)
+        embed.add_field(name="Stone", value=stone, inline=True)
+        embed.set_footer(text='EpicGameBot')
+        await ctx.send(embed=embed)
 
     # @bot.command(name='nigger', help='Fuck niggers.') # UH OH!!!
     # async def nigger(message):
